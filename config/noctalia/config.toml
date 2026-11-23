@@ -1,0 +1,31 @@
+[shell]
+transparency_mode = "glass"
+borders = true
+shadow = true
+
+[theme]
+mode = "dark"
+source = "wallpaper"
+
+[wallpaper]
+enabled = true
+directory = "/home/chris/Pictures/Wallpapers"
+transition_on_startup = true
+
+[nightlight]
+enabled = false
+temperature_day = 6500
+temperature_night = 3500
+
+[idle.behavior.lock]
+timeout = 300
+action = "lock"
+enabled = true
+
+[idle.behavior.screen-off]
+timeout = 420
+action = "screen_off"
+enabled = true
+
+[widget.clock]
+format = "{:%-I:%M %p}"

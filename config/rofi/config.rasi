@@ -1,0 +1,139 @@
+configuration {
+    modi: "drun,run,filebrowser,window";
+    show-icons: true;
+    icon-theme: "Papirus";
+    display-drun: " Apps";
+    display-run: " Run";
+    display-filebrowser: " Files";
+    display-window: " Window";
+    drun-display-format: "{name}";
+    font: "JetBrainsMono Nerd Font 12";
+}
+
+* {
+    background-color: transparent;
+    text-color: @fg-col;
+    bg-col: rgba(30, 30, 46, 0.55);
+    bg-col-light: rgba(49, 50, 68, 0.65);
+    border-col: rgba(108, 112, 122, 0.8);
+    selected-col: rgba(108, 112, 122, 0.35);
+    fg-col: #cdd6f4;
+    fg-col2: #b8bcc4;
+}
+
+window {
+    background-color: @bg-col;
+    border: 2px;
+    border-color: @border-col;
+    border-radius: 16px;
+    padding: 16px;
+    width: 900px;
+}
+
+mainbox {
+    background-color: transparent;
+    children: [imagebox, listbox];
+    orientation: horizontal;
+    spacing: 16px;
+}
+
+imagebox {
+    background-color: @bg-col-light;
+    background-image: url("/home/chris/Pictures/rofi/tree.jpg");
+    border-radius: 12px;
+    width: 300px;
+}
+
+listbox {
+    background-color: transparent;
+    orientation: vertical;
+    children: [inputbar, mode-switcher, listview];
+    spacing: 12px;
+}
+
+inputbar {
+    background-color: @bg-col-light;
+    border-radius: 8px;
+    padding: 10px;
+    children: [prompt, entry];
+}
+
+prompt {
+    background-color: transparent;
+    text-color: @fg-col2;
+    padding: 0px 8px 0px 4px;
+}
+
+entry {
+    background-color: transparent;
+    text-color: @fg-col;
+    placeholder: "Search...";
+    placeholder-color: rgba(205, 214, 244, 0.5);
+}
+
+mode-switcher {
+    background-color: transparent;
+    spacing: 8px;
+}
+
+button {
+    background-color: @bg-col-light;
+    text-color: @fg-col;
+    border-radius: 8px;
+    padding: 8px;
+    horizontal-align: 0.5;
+}
+
+button selected {
+    background-color: @selected-col;
+    text-color: @fg-col2;
+}
+
+listview {
+    background-color: transparent;
+    columns: 1;
+    lines: 8;
+    spacing: 4px;
+    fixed-height: false;
+    scrollbar: false;
+}
+
+element {
+    background-color: transparent;
+    text-color: @fg-col;
+    padding: 8px;
+    border-radius: 8px;
+}
+
+element selected {
+    background-color: @selected-col;
+    text-color: @fg-col2;
+}
+
+element-icon {
+    size: 24px;
+    padding: 0px 8px 0px 0px;
+}
+
+element-text {
+    vertical-align: 0.5;
+}
+
+element normal.normal, element alternate.normal {
+    background-color: transparent;
+    text-color: @fg-col;
+}
+
+element normal.urgent, element alternate.urgent {
+    background-color: transparent;
+    text-color: @fg-col;
+}
+
+element-text {
+    background-color: transparent;
+    text-color: inherit;
+}
+
+element-icon {
+    background-color: transparent;
+}

@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+logo="$HOME/.local/share/ascii/my-arch-color.txt"
+frames=("137;180;250" "180;190;254" "203;166;247" "245;194;231" "243;139;168" "250;179;135" "249;226;175" "166;227;161" "148;226;213" "137;220;235")
+clear
+tput civis
+trap 'tput cnorm; exit' INT TERM
+for pass in 1 2; do
+  for c in "${frames[@]}"; do
+    printf '\033[H'
+    fastfetch --logo "$logo" --logo-color-1 "38;2;${c}"
+    sleep 0.1
+  done
+done
+tput cnorm

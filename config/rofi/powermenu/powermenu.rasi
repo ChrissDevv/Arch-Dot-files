@@ -1,0 +1,71 @@
+configuration {
+    font: "JetBrainsMono Nerd Font 13";
+}
+
+* {
+    background-color: transparent;
+    text-color: @fg-col;
+    bg-col: rgba(30, 30, 46, 0.55);
+    bg-col-light: rgba(49, 50, 68, 0.65);
+    border-col: rgba(108, 112, 122, 0.8);
+    selected-col: rgba(108, 112, 122, 0.35);
+    fg-col: #cdd6f4;
+    fg-col2: #b8bcc4;
+}
+
+window {
+    background-color: @bg-col;
+    border: 2px;
+    border-color: @border-col;
+    border-radius: 16px;
+    padding: 20px;
+    width: 320px;
+}
+
+mainbox {
+    background-color: transparent;
+    children: [message, listview];
+    spacing: 12px;
+}
+
+message {
+    background-color: @bg-col-light;
+    border-radius: 8px;
+    padding: 10px;
+}
+
+textbox {
+    background-color: transparent;
+    text-color: @fg-col2;
+}
+
+listview {
+    background-color: transparent;
+    columns: 1;
+    lines: 5;
+    spacing: 4px;
+    fixed-height: false;
+    scrollbar: false;
+}
+
+element {
+    background-color: transparent;
+    text-color: @fg-col;
+    padding: 10px;
+    border-radius: 8px;
+}
+
+element selected {
+    background-color: @selected-col;
+    text-color: @fg-col2;
+}
+
+element-text {
+    background-color: transparent;
+    text-color: inherit;
+}
+
+element normal.normal, element alternate.normal {
+    background-color: transparent;
+    text-color: @fg-col;
+}

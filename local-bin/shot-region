@@ -1,0 +1,2 @@
+#!/usr/bin/env bash
+grim -g "$(slurp -b 00000000 -c c04040ff -w 2)" - | satty --filename - --save-after-copy -o "$HOME/Pictures/Screenshots/satty-$(date +%Y-%m-%d_%H-%M-%S).png"

@@ -1,0 +1,94 @@
+#!/usr/bin/env python3
+import itertools, math, os, subprocess, sys, tempfile, time
+
+SRC = os.path.expanduser("~/.local/share/ascii/my-arch.txt")
+MODE = next((a for a in sys.argv[1:] if a in ("flat", "turn")), "turn")
+LOOP = "loop" in sys.argv[1:]
+FRAMES = 36   # frames per full turn
+TURNS = 2     # how many full turns
+DELAY = 0.1  # extra pause per frame (seconds)
+
+BITS = {0x01: (0, 0), 0x02: (0, 1), 0x04: (0, 2), 0x08: (1, 0),
+        0x10: (1, 1), 0x20: (1, 2), 0x40: (0, 3), 0x80: (1, 3)}
+
+pts = set()
+with open(SRC, encoding="utf-8") as f:
+    for r, line in enumerate(f.read().splitlines()):
+        for c, ch in enumerate(line):
+            val = ord(ch) - 0x2800
+            if 0 <= val <= 0xFF:
+                for bit, (dx, dy) in BITS.items():
+                    if val & bit:
+                        pts.add((c * 2 + dx, r * 4 + dy))
+
+if not pts:
+    sys.exit("No braille dots found in " + SRC)
+
+xs = [p[0] for p in pts]
+ys = [p[1] for p in pts]
+cx = (min(xs) + max(xs) + 1) / 2
+cy = (min(ys) + max(ys) + 1) / 2
+
+if MODE == "turn":
+    W = ((max(xs) - min(xs) + 1) // 2 + 2) * 2
+    H = ((max(ys) - min(ys) + 1) // 4 + 2) * 4
+else:
+    R = max(math.hypot(x + 0.5 - cx, y + 0.5 - cy) for x, y in pts)
+    W = H = (int(2 * R) // 4 + 2) * 4
+
+def render(theta):
+    cs, sn = math.cos(theta), math.sin(theta)
+    if MODE == "turn" and abs(cs) < 0.08:
+        cs = 0.08 if cs >= 0 else -0.08
+    on = set()
+    for y in range(H):
+        for x in range(W):
+            u = x + 0.5 - W / 2
+            v = y + 0.5 - H / 2
+            if MODE == "turn":
+                sx, sy = u / cs, v
+            else:
+                sx, sy = u * cs + v * sn, -u * sn + v * cs
+            if (math.floor(sx + cx), math.floor(sy + cy)) in pts:
+                on.add((x, y))
+    rows = []
+    for r in range(H // 4):
+        row = ""
+        for c in range(W // 2):
+            val = 0
+            for bit, (dx, dy) in BITS.items():
+                if (c * 2 + dx, r * 4 + dy) in on:
+                    val |= bit
+            row += chr(0x2800 + val)
+        rows.append(row)
+    return "\n".join(rows) + "\n"
+
+tmp = tempfile.mkdtemp()
+paths = []
+for i in range(FRAMES):
+    p = os.path.join(tmp, "f%d.txt" % i)
+    with open(p, "w", encoding="utf-8") as f:
+        f.write(render(2 * math.pi * i / FRAMES))
+    paths.append(p)
+
+out = sys.stdout
+out.write("\033[2J\033[H\033[?25l")
+out.flush()
+try:
+    for _ in (itertools.count() if LOOP else range(TURNS)):
+        for p in paths:
+            out.write("\033[H")
+            out.flush()
+            subprocess.run(["fastfetch", "--logo", p])
+            time.sleep(DELAY)
+    out.write("\033[H\033[J")
+    out.flush()
+    subprocess.run(["fastfetch"])
+except KeyboardInterrupt:
+    pass
+finally:
+    out.write("\033[?25h")
+    out.flush()
+    for p in paths:
+        os.remove(p)
+    os.rmdir(tmp)

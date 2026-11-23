@@ -1,0 +1,104 @@
+#!/usr/bin/env python3
+import random, shutil, sys, time
+
+ANCHORS = {
+    "mono":  [(0, 0, 0), (45, 45, 45), (110, 110, 110), (190, 190, 190), (255, 255, 255)],
+    "green": [(0, 0, 0), (12, 45, 24), (40, 110, 60), (166, 227, 161), (235, 255, 235)],
+}
+
+def mix(a, b, t):
+    return tuple(int(a[i] + (b[i] - a[i]) * t) for i in range(3))
+
+def from_hex(h):
+    h = h.lstrip("#")
+    col = tuple(int(h[i:i + 2], 16) for i in (0, 2, 4))
+    return [(0, 0, 0), mix((0, 0, 0), col, 0.35), col, mix(col, (255, 255, 255), 0.55), (255, 255, 255)]
+
+def build_palette(anchors, n):
+    segs = len(anchors) - 1
+    pal = []
+    for i in range(n):
+        t = i / (n - 1) * segs
+        k = min(int(t), segs - 1)
+        pal.append(mix(anchors[k], anchors[k + 1], t - k))
+    return pal
+
+arg = sys.argv[1] if len(sys.argv) > 1 else "mono"
+try:
+    anchors = ANCHORS[arg] if arg in ANCHORS else from_hex(arg)
+except ValueError:
+    sys.exit("usage: ffire [mono|green|#hex] [rows]")
+
+size = shutil.get_terminal_size()
+W, lines = size.columns, size.lines
+rows = int(sys.argv[2]) if len(sys.argv) > 2 else max(6, lines // 2)
+rows = min(rows, lines)
+H = rows * 2
+LEVELS = min(37, max(12, H))
+MAXI = LEVELS - 1
+pal = build_palette(anchors, LEVELS)
+
+def fg(c): return "38;2;%d;%d;%d" % c
+def bg(c): return "48;2;%d;%d;%d" % c
+
+esc = [[None] * LEVELS for _ in range(LEVELS)]
+chs = [[None] * LEVELS for _ in range(LEVELS)]
+for i in range(LEVELS):
+    for j in range(LEVELS):
+        if i == 0 and j == 0:
+            esc[i][j], chs[i][j] = "\033[0m", " "
+        elif j == 0:
+            esc[i][j], chs[i][j] = "\033[0;%sm" % fg(pal[i]), "▀"
+        elif i == 0:
+            esc[i][j], chs[i][j] = "\033[0;%sm" % fg(pal[j]), "▄"
+        else:
+            esc[i][j], chs[i][j] = "\033[0;%s;%sm" % (fg(pal[i]), bg(pal[j])), "▀"
+
+fire = [0] * (W * H)
+for x in range(W):
+    fire[(H - 1) * W + x] = MAXI
+
+q = min(1.0, 1.25 * MAXI / H)
+rnd = random.random
+out = sys.stdout
+out.write("\033[?1049h\033[?25l\033[?7l\033[2J")
+out.flush()
+try:
+    while True:
+        for y in range(1, H):
+            row = y * W
+            up = row - W
+            for x in range(W):
+                p = fire[row + x]
+                if p:
+                    nx = x + int(rnd() * 3) - 1
+                    if nx < 0:
+                        nx = 0
+                    elif nx >= W:
+                        nx = W - 1
+                    fire[up + nx] = p - 1 if rnd() < q else p
+                else:
+                    fire[up + x] = 0
+        frame = []
+        for r in range(rows):
+            parts = ["\033[%d;1H" % (lines - rows + 1 + r)]
+            ytop = 2 * r * W
+            ybot = (2 * r + 1) * W
+            prev = -1
+            for x in range(W):
+                i = fire[ytop + x]
+                j = fire[ybot + x]
+                key = i * LEVELS + j
+                if key != prev:
+                    parts.append(esc[i][j])
+                    prev = key
+                parts.append(chs[i][j])
+            frame.append("".join(parts))
+        out.write("".join(frame))
+        out.flush()
+        time.sleep(0.03)
+except KeyboardInterrupt:
+    pass
+finally:
+    out.write("\033[0m\033[?7h\033[?25h\033[?1049l")
+    out.flush()
