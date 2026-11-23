@@ -1,8 +1,8 @@
 # arch-dotfiles
 
 My Arch Linux setup on a ThinkPad T14 Gen 2. MangoWC + Noctalia v5,
-red on black. Companion to my Void setup at
-github.com/ChrissDevv/Dotfiles — same look, different distro.
+red on black. 
+
 
 ## Screenshot
 
