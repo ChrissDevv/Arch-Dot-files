@@ -4,6 +4,10 @@ My Arch Linux setup on a ThinkPad T14 Gen 2. MangoWC + Noctalia v5,
 red on black. Companion to my Void setup at
 github.com/ChrissDevv/Dotfiles — same look, different distro.
 
+## Screenshot
+
+![Desktop](screenshots/desktop.jpg)
+
 ## The machine
 
 - ThinkPad T14 Gen 2, i5-1135G7, 24 GB RAM
